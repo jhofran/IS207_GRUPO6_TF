@@ -226,7 +226,7 @@ public class GestionPersonal {
         boolean esValido = false;
         while (!esValido) {
             try {
-                System.out.print("Elige una opción: ");
+                //System.out.print("Elige una opción: ");
                 numero = scanner.nextInt();
                 esValido = true;
             } catch (InputMismatchException e) {
