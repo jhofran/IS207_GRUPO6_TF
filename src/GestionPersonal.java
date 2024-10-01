@@ -1,16 +1,30 @@
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class GestionPersonal {
     static ArrayList<Empleado> empleados = new ArrayList<>();
     static Scanner scanner = new Scanner(System.in);
+    static String rojo = "\033[31m";
+    static String verde = "\033[32m";
+    static String amarillo = "\033[33m";
+    static String azul = "\033[34m";
+
+    // Resetear color
+    static String reset = "\033[0m";
 
     public static void main(String[] args) {
+
+        empleados.add(new Empleado("Ruth Karin, Huamaní Paz", 1, "Contadora General", 4500));
+        empleados.add(new Empleado("Michelle Lesly, Isasi Mauricio", 2, "Gerente Software", 3800));
+        empleados.add(new Empleado("Anthony Williams, Micha Cortez", 3, "Analista de Sofware", 3000));
+        empleados.add(new Empleado("Jhony Frank, Llontop Caballero", 4, "Administrador", 2500));
+
+
         int opcion;
         do {
             mostrarMenu();
-            opcion = scanner.nextInt();
-            scanner.nextLine();
+            opcion = leerEnteroOpciones();
             switch (opcion) {
                 case 1:
                     ingresarPersonal();
@@ -39,24 +53,32 @@ public class GestionPersonal {
         } while (opcion != 6);
     }
 
-    public static void mostrarMenu() {
-        System.out.println("\n===== Menú de Gestión de Personal =====");
-        System.out.println("1. Ingreso de Personal");
-        System.out.println("2. Listado de Personal");
-        System.out.println("3. Ingreso de Datos para el Cálculo de Planilla");
-        System.out.println("4. Listado de Sueldos");
-        System.out.println("5. Buscar Empleado por ID");
-        System.out.println("6. Salir");
-        System.out.print("Elige una opción: ");
+    static void mostrarMenu() {
+        System.out.println(azul + "\n===== Menú de Gestión de Personal =====" + reset);
+        System.out.println(verde + "1. Ingreso de Personal" + reset);
+        System.out.println(verde + "2. Listado de Personal"+ reset);
+        System.out.println(verde + "3. Ingreso de Datos para el Cálculo de Planilla"+ reset);
+        System.out.println(verde + "4. Listado de Sueldos"+ reset);
+        System.out.println(verde + "5. Buscar Empleado por ID"+ reset);
+        System.out.println(verde + "6. Salir"+ reset);
+        System.out.print("Elige una opción: "+ reset);
     }
 
     // Opción 1: Ingresar personal
-    public static void ingresarPersonal() {
-        System.out.println("\n=== Ingreso de Personal ===");
+    static void ingresarPersonal() {
+        System.out.println(azul +"\n=== Ingreso de Personal ==="+reset);
 
-        System.out.print("ID: ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
+        //int id = leerEntero("ID: ");
+
+        int id;
+        boolean idExistente;
+        do {
+            id = leerEntero("ID: ");
+            idExistente = verificarIdExistente(id);
+            if (idExistente) {
+                System.out.println(rojo+"El ID ingresado ya existe. Por favor, ingresa un ID diferente."+reset);
+            }
+        } while (idExistente);
 
         System.out.print("Nombres y Apellidos: ");
         String nombre = scanner.nextLine();
@@ -64,9 +86,7 @@ public class GestionPersonal {
         System.out.print("Puesto: ");
         String puesto = scanner.nextLine();
 
-        System.out.print("Salario Base: ");
-        double salarioBase = scanner.nextDouble();
-        scanner.nextLine();
+        double salarioBase = leerDouble("Salario Base: ");
 
         Empleado empleado = new Empleado(nombre, id, puesto, salarioBase);
         empleados.add(empleado);
@@ -74,10 +94,10 @@ public class GestionPersonal {
     }
 
     // Opción 2: Listar personal
-    public static void listarPersonal() {
-        System.out.println("\n=== Listado de Personal ===");
+    static void listarPersonal() {
+        System.out.println(azul +"\n=== Listado de Personal ==="+reset);
         if (empleados.isEmpty()) {
-            System.out.println("No hay empleados registrados.");
+            System.out.println(rojo + "No hay empleados registrados."+reset);
         } else {
             for (Empleado empleado : empleados) {
                 System.out.println("ID: " + empleado.id + ", Nombres y Apellidos: " + empleado.nombre + ", Puesto: " + empleado.puesto);
@@ -87,22 +107,32 @@ public class GestionPersonal {
 
     // Opción 3: Ingresar datos para cálculo de planilla
     public static void ingresarDatosPlanilla() {
-        System.out.println("\n=== Ingreso de Datos para Cálculo de Planilla ===");
-        System.out.print("Ingresa el ID del empleado: ");
-        int id = scanner.nextInt();
+        System.out.println(azul +"\n=== Ingreso de Datos para Cálculo de Planilla "+ rojo +"(Ingresar nuevos Valores o dejar en blanco para mantener el valor actual) ===" +reset);
+
+        int id = leerEntero("Ingresa el ID del empleado: ");
         Empleado empleado = buscarEmpleado(id);
         if (empleado != null) {
-            System.out.print("Bonificaciones: ");
-            empleado.bonificaciones = scanner.nextDouble();
-            System.out.print("Descuentos: ");
-            empleado.descuentos = scanner.nextDouble();
+
+            System.out.println("Salario base actual: " + empleado.salarioBase);
+            double salariobase = leerDoubleOpcional("Ingresa el nuevo salario base: ", empleado.salarioBase);
+
+            System.out.println("Bonificación actual: " + empleado.bonificaciones);
+            double bonificacion = leerDoubleOpcional("Ingresa la nueva bonificación: ", empleado.bonificaciones);
+
+            System.out.println("Descuentos actuales: " + empleado.descuentos);
+            double descuento = leerDoubleOpcional("Ingresa el nuevo descuento: ", empleado.descuentos);
+
+            empleado.salarioBase=salariobase;
+            empleado.bonificaciones = bonificacion;
+            empleado.descuentos = descuento;
 
             int horasExtras;
             do {
-                System.out.print("Horas Extras (máximo 10): ");
-                horasExtras = scanner.nextInt();
+
+                horasExtras = leerEntero("Horas Extras (máximo 10): ");
+
                 if (horasExtras > 10) {
-                    System.out.println("No esta permitido más de 10 horas extras. Ingresa nuevamente tus horas");
+                    System.out.println(rojo+"No esta permitido más de 10 horas extras. Ingresa nuevamente tus horas"+reset);
                 }
             } while (horasExtras > 10);
 
@@ -115,38 +145,29 @@ public class GestionPersonal {
     }
 
     // Opción 4: Listar sueldos
-    public static void listarSueldos() {
-        System.out.println("\n=== Listado de Sueldos ===");
+    static void listarSueldos() {
+        System.out.println(azul +"\n=== Listado de Sueldos ==="+reset);
         if (empleados.isEmpty()) {
             System.out.println("No hay empleados registrados.");
         } else {
             for (Empleado empleado : empleados) {
-                // System.out.println("ID: " + empleado.id + ", Nombre: " + empleado.nombre + ", Salario Final: " + empleado.salarioFinal);
                 System.out.println("ID: " + empleado.id +
                         ", Nombre: " + empleado.nombre +
                         ", Salario Base: " + empleado.salarioBase +
+                        ", Bonificaciones: " + empleado.bonificaciones +
                         ", Horas Extras: " + empleado.horasExtras +
                         ", Descuentos: " + empleado.descuentos +
-                        ", Salario Final: " + empleado.salarioFinal);
+                        ", Pensión 10%: " + empleado.pension +
+                        amarillo + ", Salario Final: " + empleado.salarioFinal + reset);
             }
         }
     }
 
-    // Buscar empleado por ID
-    public static Empleado buscarEmpleado(int id) {
-        for (Empleado empleado : empleados) {
-            if (empleado.id == id) {
-                return empleado;
-            }
-        }
-        return null;
-    }
     // Opción 5: BuscarEmpleadoPorID
+    static void buscarEmpleadoPorID() {
+        System.out.println(azul+"\n=== Buscar Empleado por ID ==="+reset);
 
-    public static void buscarEmpleadoPorID() {
-        System.out.println("\n=== Buscar Empleado por ID ===");
-        System.out.print("Ingresa el ID del empleado: ");
-        int id = scanner.nextInt();
+        int id = leerEntero("Ingresa ID del empleado: ");
         Empleado empleado = buscarEmpleado(id);
 
         if (empleado != null) {
@@ -156,12 +177,98 @@ public class GestionPersonal {
             System.out.println("Puesto: " + empleado.puesto);
             System.out.println("Salario Final: " + empleado.salarioFinal);
         } else {
-            System.out.println("Empleado no encontrado.");
+            System.out.println(rojo+"Empleado no encontrado."+reset);
         }
 
         System.out.println("Regresando al menú principal...");
     }
 
+    // Buscar empleado por ID
+    static Empleado buscarEmpleado(int id) {
+        for (Empleado empleado : empleados) {
+            if (empleado.id == id) {
+                return empleado;
+            }
+        }
+        return null;
+    }
 
+     static boolean verificarIdExistente(int id) {
+        for (Empleado empleado : empleados) {
+            if (empleado.id == id) {
+                return true;  // El ID ya existe
+            }
+        }
+        return false;  // El ID no existe
+    }
 
+    // Validación para leer un entero
+    static int leerEntero(String mensaje) {
+        int numero = 0;
+        boolean esValido = false;
+        while (!esValido) {
+            try {
+                System.out.print(mensaje);
+                numero = scanner.nextInt();
+                esValido = true;
+            } catch (InputMismatchException e) {
+                System.out.println(rojo+"Por favor, ingresa un número válido."+reset);
+                scanner.nextLine();  // Limpiar el buffer
+            }
+        }
+        scanner.nextLine(); // Limpiar el buffer después de leer el número
+        return numero;
+    }
+
+    // Validación para leer un entero
+    static int leerEnteroOpciones() {
+        int numero = 0;
+        boolean esValido = false;
+        while (!esValido) {
+            try {
+                System.out.print("Elige una opción: ");
+                numero = scanner.nextInt();
+                esValido = true;
+            } catch (InputMismatchException e) {
+                System.out.println(rojo+"Por favor, ingresa una opción válida para el menú."+reset);
+                scanner.nextLine();  // Limpiar el buffer
+            }
+        }
+        scanner.nextLine(); // Limpiar el buffer después de leer el número
+        return numero;
+    }
+
+    // Validación para leer un doble
+    static double leerDouble(String mensaje) {
+        double numero = 0.0;
+        boolean esValido = false;
+        while (!esValido) {
+            try {
+                System.out.print(mensaje);
+                numero = scanner.nextDouble();
+                esValido = true;
+            } catch (InputMismatchException e) {
+                System.out.println(rojo+"Por favor, ingresa un importe válido."+reset);
+                scanner.nextLine();  // Limpiar el buffer
+            }
+        }
+        scanner.nextLine(); // Limpiar el buffer después de leer el número
+        return numero;
+    }
+
+    // Validación para leer un doble opcional (dejar en blanco para mantener el valor actual)
+    static double leerDoubleOpcional(String mensaje, double valorActual) {
+        String entrada;
+        double numero = valorActual;
+        System.out.print(mensaje);
+        entrada = scanner.nextLine();
+        if (!entrada.isEmpty()) {
+            try {
+                numero = Double.parseDouble(entrada);
+            } catch (NumberFormatException e) {
+                System.out.println(rojo+"Entrada no válida, se mantendrá el valor actual: " + valorActual+reset);
+            }
+        }
+        return numero;
+    }
 }
