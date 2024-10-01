@@ -24,13 +24,19 @@ public class GestionPersonal {
                 case 4:
                     listarSueldos();
                     break;
+
                 case 5:
+                    buscarEmpleadoPorID();
+                    break;
+
+                case 6:
                     System.out.println("Saliendo del programa...");
                     break;
+
                 default:
                     System.out.println("Opción no válida, por favor elige nuevamente.");
             }
-        } while (opcion != 5);
+        } while (opcion != 6);
     }
 
     public static void mostrarMenu() {
@@ -39,7 +45,8 @@ public class GestionPersonal {
         System.out.println("2. Listado de Personal");
         System.out.println("3. Ingreso de Datos para el Cálculo de Planilla");
         System.out.println("4. Listado de Sueldos");
-        System.out.println("5. Salir");
+        System.out.println("5. Buscar Empleado por ID");
+        System.out.println("6. Salir");
         System.out.print("Elige una opción: ");
     }
 
@@ -63,7 +70,7 @@ public class GestionPersonal {
 
         Empleado empleado = new Empleado(nombre, id, puesto, salarioBase);
         empleados.add(empleado);
-        System.out.println("Empleado registrado con exito.");
+        System.out.println("Empleado registrado con éxito.");
     }
 
     // Opción 2: Listar personal
@@ -89,6 +96,17 @@ public class GestionPersonal {
             empleado.bonificaciones = scanner.nextDouble();
             System.out.print("Descuentos: ");
             empleado.descuentos = scanner.nextDouble();
+
+            int horasExtras;
+            do {
+                System.out.print("Horas Extras (máximo 10): ");
+                horasExtras = scanner.nextInt();
+                if (horasExtras > 10) {
+                    System.out.println("No esta permitido más de 10 horas extras. Ingresa nuevamente tus horas");
+                }
+            } while (horasExtras > 10);
+
+            empleado.horasExtras = horasExtras;
             empleado.calcularSalarioFinal();
             System.out.println("Salario final calculado exitosamente.");
         } else {
@@ -103,7 +121,13 @@ public class GestionPersonal {
             System.out.println("No hay empleados registrados.");
         } else {
             for (Empleado empleado : empleados) {
-                System.out.println("ID: " + empleado.id + ", Nombre: " + empleado.nombre + ", Salario Final: " + empleado.salarioFinal);
+                // System.out.println("ID: " + empleado.id + ", Nombre: " + empleado.nombre + ", Salario Final: " + empleado.salarioFinal);
+                System.out.println("ID: " + empleado.id +
+                        ", Nombre: " + empleado.nombre +
+                        ", Salario Base: " + empleado.salarioBase +
+                        ", Horas Extras: " + empleado.horasExtras +
+                        ", Descuentos: " + empleado.descuentos +
+                        ", Salario Final: " + empleado.salarioFinal);
             }
         }
     }
@@ -117,4 +141,27 @@ public class GestionPersonal {
         }
         return null;
     }
+    // Opción 5: BuscarEmpleadoPorID
+
+    public static void buscarEmpleadoPorID() {
+        System.out.println("\n=== Buscar Empleado por ID ===");
+        System.out.print("Ingresa el ID del empleado: ");
+        int id = scanner.nextInt();
+        Empleado empleado = buscarEmpleado(id);
+
+        if (empleado != null) {
+            System.out.println("\nEmpleado encontrado:");
+            System.out.println("ID: " + empleado.id);
+            System.out.println("Nombre: " + empleado.nombre);
+            System.out.println("Puesto: " + empleado.puesto);
+            System.out.println("Salario Final: " + empleado.salarioFinal);
+        } else {
+            System.out.println("Empleado no encontrado.");
+        }
+
+        System.out.println("Regresando al menú principal...");
+    }
+
+
+
 }
