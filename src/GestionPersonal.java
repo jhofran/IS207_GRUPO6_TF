@@ -91,6 +91,7 @@ public class GestionPersonal {
         Empleado empleado = new Empleado(nombre, id, puesto, salarioBase);
         empleados.add(empleado);
         System.out.println("Empleado registrado con éxito.");
+        ordenamientoEmpleado();
     }
 
     // Opción 2: Listar personal
@@ -194,12 +195,23 @@ public class GestionPersonal {
     }
 
      static boolean verificarIdExistente(int id) {
-        for (Empleado empleado : empleados) {
-            if (empleado.id == id) {
-                return true;  // El ID ya existe
-            }
-        }
-        return false;  // El ID no existe
+         int izquierda = 0;
+         int derecha = empleados.size() - 1;
+
+         while (izquierda <= derecha) {
+             int medio = (izquierda + derecha) / 2;
+             Empleado empleadoMedio = empleados.get(medio);
+
+             if (empleadoMedio.id == id) {
+                 return true;  // Empleado encontrado
+             } else if (empleadoMedio.id < id) {
+                 izquierda = medio + 1;  // Buscar en la mitad derecha
+             } else {
+                 derecha = medio - 1;  // Buscar en la mitad izquierda
+             }
+         }
+         return false;  // Si no se encuentra el empleado
+
     }
 
     // Validación para leer un entero
@@ -271,4 +283,19 @@ public class GestionPersonal {
         }
         return numero;
     }
+
+    static void ordenamientoEmpleado() {
+        int n = empleados.size();
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (empleados.get(j).id > empleados.get(j + 1).id) {
+                    // Intercambiar empleados
+                    Empleado temp = empleados.get(j);
+                    empleados.set(j, empleados.get(j + 1));
+                    empleados.set(j + 1, temp);
+                }
+            }
+        }
+    }
+
 }
